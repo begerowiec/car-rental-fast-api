@@ -1,5 +1,10 @@
 from pydantic import BaseModel
 from datetime import date, datetime
+from typing import Optional
+
+# ---------------------------
+# Car Schemas
+# ---------------------------
 
 
 class CarBase(BaseModel):
@@ -13,6 +18,32 @@ class CarBase(BaseModel):
     status: str
 
 
+class CarCreate(CarBase):
+    pass
+
+
+class CarUpdate(BaseModel):
+    manufacturer: Optional[str]
+    model: Optional[str]
+    year: Optional[int]
+    vehicle_type: Optional[str]
+    registration_number: Optional[str]
+    purchase_date: Optional[date]
+    mileage: Optional[int]
+    status: Optional[str]
+
+
+class Car(CarBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+# ---------------------------
+# Client Schemas
+# ---------------------------
+
 class ClientBase(BaseModel):
     first_name: str
     last_name: str
@@ -21,6 +52,10 @@ class ClientBase(BaseModel):
     pesel: str
     email: str
     phone_number: str
+
+# ---------------------------
+# Order Schemas
+# ---------------------------
 
 
 class OrderBase(BaseModel):
@@ -31,6 +66,10 @@ class OrderBase(BaseModel):
     status: str
     total_amount: float
     payment_status: str
+
+# ---------------------------
+# Insurance Schemas
+# ---------------------------
 
 
 class InsuranceBase(BaseModel):
