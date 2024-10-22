@@ -34,3 +34,24 @@ class Client(Base):
     email = Column(String, unique=True, nullable=False)
     phone_number = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    orders = relationship('Order', back_populates='client')
+
+
+class Order(Base):
+    __tablename__ = 'orders'
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey('clients.id'), nullable=False)
+    car_id = Column(Integer, ForeignKey('cars.id'), nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    status = Column(String, default='pending')  # e.g., 'pending', 'active', 'completed', 'canceled'
+    total_amount = Column(DECIMAL(10, 2), nullable=False)
+    payment_status = Column(String, default='unpaid')  # e.g., 'paid', 'unpaid'
+
+    # Relationships
+    client = relationship('Client', back_populates='orders')
+    car = relationship('Car', back_populates='orders')
+
