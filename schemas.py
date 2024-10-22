@@ -89,6 +89,27 @@ class OrderBase(BaseModel):
     total_amount: float
     payment_status: str
 
+
+class OrderCreate(OrderBase):
+    pass
+
+
+class OrderUpdate(BaseModel):
+    client_id: Optional[int]
+    car_id: Optional[int]
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
+    status: Optional[str]
+    total_amount: Optional[float]
+    payment_status: Optional[str]
+
+
+class Order(OrderBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 # ---------------------------
 # Insurance Schemas
 # ---------------------------
