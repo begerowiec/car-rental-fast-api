@@ -53,6 +53,28 @@ class ClientBase(BaseModel):
     email: str
     phone_number: str
 
+
+class ClientCreate(ClientBase):
+    pass
+
+
+class ClientUpdate(BaseModel):
+    first_name: Optional[str]
+    last_name: Optional[str]
+    date_of_birth: Optional[date]
+    identity_number: Optional[str]
+    pesel: Optional[str]
+    email: Optional[str]
+    phone_number: Optional[str]
+
+
+class Client(ClientBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
 # ---------------------------
 # Order Schemas
 # ---------------------------
