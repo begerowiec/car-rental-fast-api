@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import DECIMAL, Boolean, Column, Integer, String, ForeignKey, DateTime, Date
+from sqlalchemy import DECIMAL, Column, Integer, String, ForeignKey, DateTime, Date
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -15,7 +15,8 @@ class Car(Base):
     registration_number = Column(String, unique=True, nullable=False)
     purchase_date = Column(Date, nullable=False)
     mileage = Column(Integer, default=0)
-    status = Column(String, default='available')  # e.g., 'available', 'rented', 'maintenance'
+    # e.g., 'available', 'rented', 'maintenance'
+    status = Column(String, default='available')
 
     # Relationships
     orders = relationship('Order', back_populates='car')
@@ -29,8 +30,10 @@ class Client(Base):
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     date_of_birth = Column(Date, nullable=False)
-    identity_number = Column(String, unique=True, nullable=False)  # Passport or ID number
-    pesel = Column(String, unique=True, nullable=False)  # National Identification Number
+    # Passport or ID number
+    identity_number = Column(String, unique=True, nullable=False)
+    # National Identification Number
+    pesel = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     phone_number = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -47,7 +50,8 @@ class Order(Base):
     car_id = Column(Integer, ForeignKey('cars.id'), nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
-    status = Column(String, default='pending')  # e.g., 'pending', 'active', 'completed', 'canceled'
+    # e.g., 'pending', 'active', 'completed', 'canceled'
+    status = Column(String, default='pending')
     total_amount = Column(DECIMAL(10, 2), nullable=False)
     payment_status = Column(String, default='unpaid')  # e.g., 'paid', 'unpaid'
 
@@ -68,4 +72,3 @@ class Insurance(Base):
 
     # Relationships
     car = relationship('Car', back_populates='insurances')
-
