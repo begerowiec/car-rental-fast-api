@@ -121,3 +121,22 @@ class InsuranceBase(BaseModel):
     company: str
     start_date: date
     end_date: date
+
+
+class InsuranceCreate(InsuranceBase):
+    pass
+
+
+class InsuranceUpdate(BaseModel):
+    car_id: Optional[int]
+    policy_number: Optional[str]
+    company: Optional[str]
+    start_date: Optional[date]
+    end_date: Optional[date]
+
+
+class Insurance(InsuranceBase):
+    id: int
+
+    class Config:
+        orm_mode = True
