@@ -20,3 +20,17 @@ class Car(Base):
     # Relationships
     orders = relationship('Order', back_populates='car')
     insurances = relationship('Insurance', back_populates='car')
+
+
+class Client(Base):
+    __tablename__ = 'clients'
+
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    date_of_birth = Column(Date, nullable=False)
+    identity_number = Column(String, unique=True, nullable=False)  # Passport or ID number
+    pesel = Column(String, unique=True, nullable=False)  # National Identification Number
+    email = Column(String, unique=True, nullable=False)
+    phone_number = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
