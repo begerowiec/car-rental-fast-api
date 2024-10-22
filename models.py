@@ -4,6 +4,8 @@ from datetime import datetime
 from database import Base
 
 
+# models.py
+
 class Car(Base):
     __tablename__ = 'cars'
 
@@ -11,11 +13,10 @@ class Car(Base):
     manufacturer = Column(String(100), nullable=False)
     model = Column(String(100), nullable=False)
     year = Column(Integer, nullable=False)
-    vehicle_type = Column(String(50), nullable=False)  # e.g., 'SUV', 'Sedan'
+    vehicle_type = Column(String(50), nullable=False)
     registration_number = Column(String(50), unique=True, nullable=False)
     purchase_date = Column(Date, nullable=False)
-    mileage = Column(Integer, default=0)
-    # e.g., 'available', 'rented', 'maintenance'
+    kilometers = Column(Integer, default=0)
     status = Column(String(50), default='available')
 
     # Relationships

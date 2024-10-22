@@ -14,7 +14,7 @@ class CarBase(BaseModel):
     vehicle_type: str
     registration_number: str
     purchase_date: date
-    mileage: int
+    kilometers: int
     status: str
 
 
@@ -29,7 +29,7 @@ class CarUpdate(BaseModel):
     vehicle_type: Optional[str]
     registration_number: Optional[str]
     purchase_date: Optional[date]
-    mileage: Optional[int]
+    kilometers: Optional[int]
     status: Optional[str]
 
 
