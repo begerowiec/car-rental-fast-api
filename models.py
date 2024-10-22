@@ -55,3 +55,17 @@ class Order(Base):
     client = relationship('Client', back_populates='orders')
     car = relationship('Car', back_populates='orders')
 
+
+class Insurance(Base):
+    __tablename__ = 'insurance'
+
+    id = Column(Integer, primary_key=True, index=True)
+    car_id = Column(Integer, ForeignKey('cars.id'), nullable=False)
+    policy_number = Column(String, unique=True, nullable=False)
+    company = Column(String, nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+
+    # Relationships
+    car = relationship('Car', back_populates='insurances')
+
