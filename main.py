@@ -49,3 +49,15 @@ def read_car(car_id: int, db: Session = Depends(get_db)):
     if car is None:
         raise HTTPException(status_code=404, detail="Car not found")
     return car
+
+
+@app.put("/cars/{car_id}", response_model=schemas.Car)
+def update_car(car_id: int, car_update: schemas.CarUpdate, db: Session = Depends(get_db)):
+    car = db.query(models.Car).filter(models.Car.id == car_id).first()
+    if car is None:
+        raise HTTPException(status_code=404, detail="Car not found")
+    for key, value in car_update.dict(exclude_unset=True).items():
+        setattr(car, key, value)
+    db.commit()
+    db.refresh(car)
+    return car
