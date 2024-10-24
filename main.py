@@ -99,3 +99,16 @@ def read_client(client_id: int, db: Session = Depends(get_db)):
     if client is None:
         raise HTTPException(status_code=404, detail="Client not found")
     return client
+
+
+@app.put("/clients/{client_id}", response_model=schemas.Client)
+def update_client(client_id: int, client_update: schemas.ClientUpdate, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter(
+        models.Client.id == client_id).first()
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    for key, value in client_update.dict(exclude_unset=True).items():
+        setattr(client, key, value)
+    db.commit()
+    db.refresh(client)
+    return client
