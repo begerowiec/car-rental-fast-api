@@ -71,3 +71,55 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
     db.delete(car)
     db.commit()
     return {"detail": "Car deleted"}
+
+# ---------------------------
+# Client Endpoints
+# ---------------------------
+
+
+@app.post("/clients/", response_model=schemas.Client)
+def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
+    db_client = models.Client(**client.dict())
+    db.add(db_client)
+    db.commit()
+    db.refresh(db_client)
+    return db_client
+
+
+@app.get("/clients/", response_model=List[schemas.Client])
+def read_clients(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    clients = db.query(models.Client).offset(skip).limit(limit).all()
+    return clients
+
+
+@app.get("/clients/{client_id}", response_model=schemas.Client)
+def read_client(client_id: int, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter(
+        models.Client.id == client_id).first()
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return client
+
+
+@app.put("/clients/{client_id}", response_model=schemas.Client)
+def update_client(client_id: int, client_update: schemas.ClientUpdate, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter(
+        models.Client.id == client_id).first()
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    for key, value in client_update.dict(exclude_unset=True).items():
+        setattr(client, key, value)
+    db.commit()
+    db.refresh(client)
+    return client
+
+
+@app.delete("/clients/{client_id}")
+def delete_client(client_id: int, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter(
+        models.Client.id == client_id).first()
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    db.delete(client)
+    db.commit()
+    return {"detail": "Client deleted"}
