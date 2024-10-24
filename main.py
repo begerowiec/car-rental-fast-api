@@ -61,3 +61,13 @@ def update_car(car_id: int, car_update: schemas.CarUpdate, db: Session = Depends
     db.commit()
     db.refresh(car)
     return car
+
+
+@app.delete("/cars/{car_id}")
+def delete_car(car_id: int, db: Session = Depends(get_db)):
+    car = db.query(models.Car).filter(models.Car.id == car_id).first()
+    if car is None:
+        raise HTTPException(status_code=404, detail="Car not found")
+    db.delete(car)
+    db.commit()
+    return {"detail": "Car deleted"}
