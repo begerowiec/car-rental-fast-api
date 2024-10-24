@@ -84,3 +84,18 @@ def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_client)
     return db_client
+
+
+@app.get("/clients/", response_model=List[schemas.Client])
+def read_clients(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    clients = db.query(models.Client).offset(skip).limit(limit).all()
+    return clients
+
+
+@app.get("/clients/{client_id}", response_model=schemas.Client)
+def read_client(client_id: int, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter(
+        models.Client.id == client_id).first()
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return client
