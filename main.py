@@ -112,3 +112,14 @@ def update_client(client_id: int, client_update: schemas.ClientUpdate, db: Sessi
     db.commit()
     db.refresh(client)
     return client
+
+
+@app.delete("/clients/{client_id}")
+def delete_client(client_id: int, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter(
+        models.Client.id == client_id).first()
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client not found")
+    db.delete(client)
+    db.commit()
+    return {"detail": "Client deleted"}
