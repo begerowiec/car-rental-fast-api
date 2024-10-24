@@ -71,3 +71,16 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
     db.delete(car)
     db.commit()
     return {"detail": "Car deleted"}
+
+# ---------------------------
+# Client Endpoints
+# ---------------------------
+
+
+@app.post("/clients/", response_model=schemas.Client)
+def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
+    db_client = models.Client(**client.dict())
+    db.add(db_client)
+    db.commit()
+    db.refresh(db_client)
+    return db_client
