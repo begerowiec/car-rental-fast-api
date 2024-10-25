@@ -123,3 +123,16 @@ def delete_client(client_id: int, db: Session = Depends(get_db)):
     db.delete(client)
     db.commit()
     return {"detail": "Client deleted"}
+
+# ---------------------------
+# Order Endpoints
+# ---------------------------
+
+
+@app.post("/orders/", response_model=schemas.Order)
+def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    db_order = models.Order(**order.dict())
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order
