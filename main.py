@@ -123,3 +123,52 @@ def delete_client(client_id: int, db: Session = Depends(get_db)):
     db.delete(client)
     db.commit()
     return {"detail": "Client deleted"}
+
+# ---------------------------
+# Order Endpoints
+# ---------------------------
+
+
+@app.post("/orders/", response_model=schemas.Order)
+def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    db_order = models.Order(**order.dict())
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order
+
+
+@app.get("/orders/", response_model=List[schemas.Order])
+def read_orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    orders = db.query(models.Order).offset(skip).limit(limit).all()
+    return orders
+
+
+@app.get("/orders/{order_id}", response_model=schemas.Order)
+def read_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+
+@app.put("/orders/{order_id}", response_model=schemas.Order)
+def update_order(order_id: int, order_update: schemas.OrderUpdate, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    for key, value in order_update.dict(exclude_unset=True).items():
+        setattr(order, key, value)
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+@app.delete("/orders/{order_id}")
+def delete_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    db.delete(order)
+    db.commit()
+    return {"detail": "Order deleted"}
