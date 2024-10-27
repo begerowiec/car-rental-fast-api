@@ -200,3 +200,16 @@ def read_insurance(insurance_id: int, db: Session = Depends(get_db)):
     if insurance is None:
         raise HTTPException(status_code=404, detail="Insurance not found")
     return insurance
+
+
+@app.put("/insurances/{insurance_id}", response_model=schemas.Insurance)
+def update_insurance(insurance_id: int, insurance_update: schemas.InsuranceUpdate, db: Session = Depends(get_db)):
+    insurance = db.query(models.Insurance).filter(
+        models.Insurance.id == insurance_id).first()
+    if insurance is None:
+        raise HTTPException(status_code=404, detail="Insurance not found")
+    for key, value in insurance_update.dict(exclude_unset=True).items():
+        setattr(insurance, key, value)
+    db.commit()
+    db.refresh(insurance)
+    return insurance
