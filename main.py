@@ -11,7 +11,22 @@ app = FastAPI()
 # Create all the tables in the database
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    title="Car Rental API",
+    description="API Documentation for Car Rental Management System.",
+    version="1.0.0",
+    contact={
+        "name": "Support",
+        "email": "adrian@soft4you.com.pl",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+)
 
 # Dependency to get a database session
 
@@ -28,7 +43,7 @@ def get_db():
 # Car Endpoints
 # ---------------------------
 
-@app.post("/cars/", response_model=schemas.Car)
+@app.post("/cars/", tags=["Cars"], response_model=schemas.Car)
 def create_car(car: schemas.CarCreate, db: Session = Depends(get_db)):
     db_car = models.Car(**car.dict())
     db.add(db_car)
@@ -37,13 +52,13 @@ def create_car(car: schemas.CarCreate, db: Session = Depends(get_db)):
     return db_car
 
 
-@app.get("/cars/", response_model=List[schemas.Car])
+@app.get("/cars/", tags=["Cars"], response_model=List[schemas.Car])
 def read_cars(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     cars = db.query(models.Car).offset(skip).limit(limit).all()
     return cars
 
 
-@app.get("/cars/{car_id}", response_model=schemas.Car)
+@app.get("/cars/{car_id}", tags=["Cars"], response_model=schemas.Car)
 def read_car(car_id: int, db: Session = Depends(get_db)):
     car = db.query(models.Car).filter(models.Car.id == car_id).first()
     if car is None:
@@ -51,7 +66,7 @@ def read_car(car_id: int, db: Session = Depends(get_db)):
     return car
 
 
-@app.put("/cars/{car_id}", response_model=schemas.Car)
+@app.put("/cars/{car_id}", tags=["Cars"], response_model=schemas.Car)
 def update_car(car_id: int, car_update: schemas.CarUpdate, db: Session = Depends(get_db)):
     car = db.query(models.Car).filter(models.Car.id == car_id).first()
     if car is None:
@@ -63,7 +78,7 @@ def update_car(car_id: int, car_update: schemas.CarUpdate, db: Session = Depends
     return car
 
 
-@app.delete("/cars/{car_id}")
+@app.delete("/cars/{car_id}", tags=["Cars"])
 def delete_car(car_id: int, db: Session = Depends(get_db)):
     car = db.query(models.Car).filter(models.Car.id == car_id).first()
     if car is None:
@@ -77,7 +92,7 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
 # ---------------------------
 
 
-@app.post("/clients/", response_model=schemas.Client)
+@app.post("/clients/", tags=["Clients"], response_model=schemas.Client)
 def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
     db_client = models.Client(**client.dict())
     db.add(db_client)
@@ -86,13 +101,13 @@ def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
     return db_client
 
 
-@app.get("/clients/", response_model=List[schemas.Client])
+@app.get("/clients/", tags=["Clients"], response_model=List[schemas.Client])
 def read_clients(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     clients = db.query(models.Client).offset(skip).limit(limit).all()
     return clients
 
 
-@app.get("/clients/{client_id}", response_model=schemas.Client)
+@app.get("/clients/{client_id}", tags=["Clients"], response_model=schemas.Client)
 def read_client(client_id: int, db: Session = Depends(get_db)):
     client = db.query(models.Client).filter(
         models.Client.id == client_id).first()
@@ -101,7 +116,7 @@ def read_client(client_id: int, db: Session = Depends(get_db)):
     return client
 
 
-@app.put("/clients/{client_id}", response_model=schemas.Client)
+@app.put("/clients/{client_id}", tags=["Clients"], response_model=schemas.Client)
 def update_client(client_id: int, client_update: schemas.ClientUpdate, db: Session = Depends(get_db)):
     client = db.query(models.Client).filter(
         models.Client.id == client_id).first()
@@ -114,7 +129,7 @@ def update_client(client_id: int, client_update: schemas.ClientUpdate, db: Sessi
     return client
 
 
-@app.delete("/clients/{client_id}")
+@app.delete("/clients/{client_id}", tags=["Clients"])
 def delete_client(client_id: int, db: Session = Depends(get_db)):
     client = db.query(models.Client).filter(
         models.Client.id == client_id).first()
@@ -129,7 +144,7 @@ def delete_client(client_id: int, db: Session = Depends(get_db)):
 # ---------------------------
 
 
-@app.post("/orders/", response_model=schemas.Order)
+@app.post("/orders/", tags=["Orders"], response_model=schemas.Order)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     db_order = models.Order(**order.dict())
     db.add(db_order)
@@ -138,13 +153,13 @@ def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     return db_order
 
 
-@app.get("/orders/", response_model=List[schemas.Order])
+@app.get("/orders/", tags=["Orders"], response_model=List[schemas.Order])
 def read_orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     orders = db.query(models.Order).offset(skip).limit(limit).all()
     return orders
 
 
-@app.get("/orders/{order_id}", response_model=schemas.Order)
+@app.get("/orders/{order_id}", tags=["Orders"], response_model=schemas.Order)
 def read_order(order_id: int, db: Session = Depends(get_db)):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if order is None:
@@ -152,7 +167,7 @@ def read_order(order_id: int, db: Session = Depends(get_db)):
     return order
 
 
-@app.put("/orders/{order_id}", response_model=schemas.Order)
+@app.put("/orders/{order_id}", tags=["Orders"], response_model=schemas.Order)
 def update_order(order_id: int, order_update: schemas.OrderUpdate, db: Session = Depends(get_db)):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if order is None:
@@ -164,7 +179,7 @@ def update_order(order_id: int, order_update: schemas.OrderUpdate, db: Session =
     return order
 
 
-@app.delete("/orders/{order_id}")
+@app.delete("/orders/{order_id}", tags=["Orders"])
 def delete_order(order_id: int, db: Session = Depends(get_db)):
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if order is None:
@@ -178,7 +193,7 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
 # Insurance Endpoints
 # ---------------------------
 
-@app.post("/insurances/", response_model=schemas.Insurance)
+@app.post("/insurances/", tags=["Insurances"], response_model=schemas.Insurance)
 def create_insurance(insurance: schemas.InsuranceCreate, db: Session = Depends(get_db)):
     db_insurance = models.Insurance(**insurance.dict())
     db.add(db_insurance)
@@ -187,13 +202,13 @@ def create_insurance(insurance: schemas.InsuranceCreate, db: Session = Depends(g
     return db_insurance
 
 
-@app.get("/insurances/", response_model=List[schemas.Insurance])
+@app.get("/insurances/", tags=["Insurances"], response_model=List[schemas.Insurance])
 def read_insurances(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     insurances = db.query(models.Insurance).offset(skip).limit(limit).all()
     return insurances
 
 
-@app.get("/insurances/{insurance_id}", response_model=schemas.Insurance)
+@app.get("/insurances/{insurance_id}", tags=["Insurances"], response_model=schemas.Insurance)
 def read_insurance(insurance_id: int, db: Session = Depends(get_db)):
     insurance = db.query(models.Insurance).filter(
         models.Insurance.id == insurance_id).first()
@@ -202,7 +217,7 @@ def read_insurance(insurance_id: int, db: Session = Depends(get_db)):
     return insurance
 
 
-@app.put("/insurances/{insurance_id}", response_model=schemas.Insurance)
+@app.put("/insurances/{insurance_id}", tags=["Insurances"], response_model=schemas.Insurance)
 def update_insurance(insurance_id: int, insurance_update: schemas.InsuranceUpdate, db: Session = Depends(get_db)):
     insurance = db.query(models.Insurance).filter(
         models.Insurance.id == insurance_id).first()
@@ -215,7 +230,7 @@ def update_insurance(insurance_id: int, insurance_update: schemas.InsuranceUpdat
     return insurance
 
 
-@app.delete("/insurances/{insurance_id}")
+@app.delete("/insurances/{insurance_id}", tags=["Insurances"])
 def delete_insurance(insurance_id: int, db: Session = Depends(get_db)):
     insurance = db.query(models.Insurance).filter(
         models.Insurance.id == insurance_id).first()
