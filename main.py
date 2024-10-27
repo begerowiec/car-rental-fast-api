@@ -185,3 +185,18 @@ def create_insurance(insurance: schemas.InsuranceCreate, db: Session = Depends(g
     db.commit()
     db.refresh(db_insurance)
     return db_insurance
+
+
+@app.get("/insurances/", response_model=List[schemas.Insurance])
+def read_insurances(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    insurances = db.query(models.Insurance).offset(skip).limit(limit).all()
+    return insurances
+
+
+@app.get("/insurances/{insurance_id}", response_model=schemas.Insurance)
+def read_insurance(insurance_id: int, db: Session = Depends(get_db)):
+    insurance = db.query(models.Insurance).filter(
+        models.Insurance.id == insurance_id).first()
+    if insurance is None:
+        raise HTTPException(status_code=404, detail="Insurance not found")
+    return insurance
