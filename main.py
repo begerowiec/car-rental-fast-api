@@ -213,3 +213,14 @@ def update_insurance(insurance_id: int, insurance_update: schemas.InsuranceUpdat
     db.commit()
     db.refresh(insurance)
     return insurance
+
+
+@app.delete("/insurances/{insurance_id}")
+def delete_insurance(insurance_id: int, db: Session = Depends(get_db)):
+    insurance = db.query(models.Insurance).filter(
+        models.Insurance.id == insurance_id).first()
+    if insurance is None:
+        raise HTTPException(status_code=404, detail="Insurance not found")
+    db.delete(insurance)
+    db.commit()
+    return {"detail": "Insurance deleted"}
