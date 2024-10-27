@@ -150,3 +150,15 @@ def read_order(order_id: int, db: Session = Depends(get_db)):
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+
+@app.put("/orders/{order_id}", response_model=schemas.Order)
+def update_order(order_id: int, order_update: schemas.OrderUpdate, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    for key, value in order_update.dict(exclude_unset=True).items():
+        setattr(order, key, value)
+    db.commit()
+    db.refresh(order)
+    return order
