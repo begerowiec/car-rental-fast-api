@@ -172,3 +172,16 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
     db.delete(order)
     db.commit()
     return {"detail": "Order deleted"}
+
+
+# ---------------------------
+# Insurance Endpoints
+# ---------------------------
+
+@app.post("/insurances/", response_model=schemas.Insurance)
+def create_insurance(insurance: schemas.InsuranceCreate, db: Session = Depends(get_db)):
+    db_insurance = models.Insurance(**insurance.dict())
+    db.add(db_insurance)
+    db.commit()
+    db.refresh(db_insurance)
+    return db_insurance
