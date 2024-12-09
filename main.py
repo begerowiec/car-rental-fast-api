@@ -1,9 +1,15 @@
-from fastapi import FastAPI, Depends, HTTPException
 import models
 import schemas
+from fastapi import FastAPI, Depends, HTTPException, Request, status
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from typing import List
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
+
+# Import the ValidationErrorResponse model
+from schemas import ValidationErrorResponse
 
 
 app = FastAPI()
@@ -38,18 +44,115 @@ def get_db():
     finally:
         db.close()
 
+# Custom exception handler for validation errors
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # Extract errors from the exception
+    errors = exc.errors()
+    error_details = []
+
+    for error in errors:
+        loc = error['loc']
+        if len(loc) > 1 and loc[0] == 'body':
+            field_name = loc[1]
+        else:
+            field_name = " -> ".join([str(l) for l in loc])
+
+        error_details.append({
+            "field": field_name,
+            "message": error['msg'],
+            "type": error['type']
+        })
+
+    # Create a custom error response
+    error_response = {
+        "message": "Validation Error",
+        "errors": error_details
+    }
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=error_response
+    )
+
 
 # ---------------------------
 # Car Endpoints
 # ---------------------------
 
-@app.post("/cars/", tags=["Cars"], response_model=schemas.Car)
+@app.post(
+    "/cars/",
+    response_model=schemas.Car,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        400: {
+            "description": "Bad Request - Validation Error or Uniqueness Constraint Violation",
+            "model": ValidationErrorResponse,
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "Validation Error": {
+                            "summary": "Validation Error Example",
+                            "value": {
+                                "message": "Validation Error",
+                                "errors": [
+                                    {
+                                        "field": "manufacturer",
+                                        "message": "field required",
+                                        "type": "value_error.missing"
+                                    }
+                                ]
+                            }
+                        },
+                        "Uniqueness Constraint Violation": {
+                            "summary": "Uniqueness Constraint Violation Example",
+                            "value": {
+                                "errors": [
+                                    {
+                                        "detail": "Registration number already exists."
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    tags=["Cars"]
+)
 def create_car(car: schemas.CarCreate, db: Session = Depends(get_db)):
+    # Check if the registration number already exists
+    existing_car = db.query(models.Car).filter(
+        models.Car.registration_number == car.registration_number).first()
+    if existing_car:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Registration number already exists."
+        )
+
     db_car = models.Car(**car.dict())
-    db.add(db_car)
-    db.commit()
-    db.refresh(db_car)
-    return db_car
+    try:
+        db.add(db_car)
+        db.commit()
+        db.refresh(db_car)
+        return db_car
+    except IntegrityError as e:
+        db.rollback()
+        # Handle possible race condition or other integrity errors
+        error_message = str(e.orig)
+        if "UNIQUE constraint failed" in error_message and "cars.registration_number" in error_message:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Registration number already exists."
+            )
+        else:
+            # For other integrity errors, return a generic message
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Database integrity error."
+            )
 
 
 @app.get("/cars/", tags=["Cars"], response_model=List[schemas.Car])
@@ -78,21 +181,20 @@ def update_car(car_id: int, car_update: schemas.CarUpdate, db: Session = Depends
     return car
 
 
-@app.delete("/cars/{car_id}", tags=["Cars"])
+@app.delete("/cars/{car_id}", tags=["Cars"], status_code=status.HTTP_204_NO_CONTENT)
 def delete_car(car_id: int, db: Session = Depends(get_db)):
     car = db.query(models.Car).filter(models.Car.id == car_id).first()
     if car is None:
         raise HTTPException(status_code=404, detail="Car not found")
     db.delete(car)
     db.commit()
-    return {"detail": "Car deleted"}
 
 # ---------------------------
 # Client Endpoints
 # ---------------------------
 
 
-@app.post("/clients/", tags=["Clients"], response_model=schemas.Client)
+@app.post("/clients/", tags=["Clients"], response_model=schemas.Client, status_code=status.HTTP_201_CREATED)
 def create_client(client: schemas.ClientCreate, db: Session = Depends(get_db)):
     db_client = models.Client(**client.dict())
     db.add(db_client)
@@ -144,7 +246,7 @@ def delete_client(client_id: int, db: Session = Depends(get_db)):
 # ---------------------------
 
 
-@app.post("/orders/", tags=["Orders"], response_model=schemas.Order)
+@app.post("/orders/", tags=["Orders"], response_model=schemas.Order, status_code=status.HTTP_201_CREATED)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     db_order = models.Order(**order.dict())
     db.add(db_order)
@@ -193,7 +295,7 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
 # Insurance Endpoints
 # ---------------------------
 
-@app.post("/insurances/", tags=["Insurances"], response_model=schemas.Insurance)
+@app.post("/insurances/", tags=["Insurances"], response_model=schemas.Insurance, status_code=status.HTTP_201_CREATED)
 def create_insurance(insurance: schemas.InsuranceCreate, db: Session = Depends(get_db)):
     db_insurance = models.Insurance(**insurance.dict())
     db.add(db_insurance)

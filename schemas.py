@@ -1,6 +1,19 @@
 from pydantic import BaseModel, Field
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, List
+
+
+class ValidationErrorDetail(BaseModel):
+    field: str = Field(..., description="Field where the error occurred")
+    message: str = Field(..., description="Error message")
+    type: Optional[str] = Field(None, description="Type of validation error")
+
+
+class ValidationErrorResponse(BaseModel):
+    message: str = Field(..., description="General error message")
+    errors: List[ValidationErrorDetail] = Field(
+        ..., description="List of validation errors")
+
 
 # ---------------------------
 # Car Schemas
