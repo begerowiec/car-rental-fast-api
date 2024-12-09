@@ -1,0 +1,677 @@
+{
+	"info": {
+		"_postman_id": "dc5399d7-95ef-41ec-811f-a2479579ea50",
+		"name": "Car Rental API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18333864",
+		"_collection_link": "https://www.postman.com/avionics-candidate-25963908/workspace/car-rental-api/collection/18333864-dc5399d7-95ef-41ec-811f-a2479579ea50?action=share&source=collection_link&creator=18333864"
+	},
+	"item": [
+		{
+			"name": "Cars",
+			"item": [
+				{
+					"name": "200 OK",
+					"item": [
+						{
+							"name": "Get all cars",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response is JSON\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+											"});",
+											"",
+											"const response = pm.response.json();",
+											"",
+											"pm.test(\"Response is an array\", function () {",
+											"    pm.expect(response).to.be.an(\"array\");",
+											"});",
+											"",
+											"pm.test(\"Each object in response contains required fields\", function () {",
+											"    response.forEach(vehicle => {",
+											"        pm.expect(vehicle).to.have.property(\"manufacturer\").that.is.a(\"string\");",
+											"        pm.expect(vehicle).to.have.property(\"model\").that.is.a(\"string\");",
+											"        pm.expect(vehicle).to.have.property(\"year\").that.is.a(\"number\");",
+											"        pm.expect(vehicle).to.have.property(\"vehicle_type\").that.is.a(\"string\");",
+											"        pm.expect(vehicle).to.have.property(\"registration_number\").that.is.a(\"string\");",
+											"        pm.expect(vehicle).to.have.property(\"purchase_date\").that.is.a(\"string\");",
+											"        pm.expect(vehicle).to.have.property(\"kilometers\").that.is.a(\"number\");",
+											"        pm.expect(vehicle).to.have.property(\"status\").that.is.a(\"string\");",
+											"        pm.expect(vehicle).to.have.property(\"id\").that.is.a(\"number\");",
+											"    });",
+											"});",
+											"",
+											"pm.test(\"Year is a valid value\", function () {",
+											"    response.forEach(vehicle => {",
+											"        pm.expect(vehicle.year).to.be.at.least(1886); // Pierwszy rok produkcji samochodów",
+											"        pm.expect(vehicle.year).to.be.at.most(new Date().getFullYear());",
+											"    });",
+											"});",
+											"",
+											"pm.test(\"Kilometers is a non-negative value\", function () {",
+											"    response.forEach(vehicle => {",
+											"        pm.expect(vehicle.kilometers).to.be.at.least(0);",
+											"    });",
+											"});",
+											"",
+											"pm.test(\"Purchase date is in valid format\", function () {",
+											"    response.forEach(vehicle => {",
+											"        pm.expect(Date.parse(vehicle.purchase_date)).to.not.be.NaN;",
+											"    });",
+											"});",
+											"",
+											"pm.test(\"Status is valid\", function () {",
+											"    const validStatuses = [\"available\", \"rented\", \"maintenance\"];",
+											"    response.forEach(vehicle => {",
+											"        pm.expect(validStatuses).to.include(vehicle.status);",
+											"    });",
+											"});",
+											"",
+											"pm.test(\"Registration numbers are unique\", function () {",
+											"    const registrationNumbers = response.map(vehicle => vehicle.registration_number);",
+											"    const uniqueRegistrationNumbers = [...new Set(registrationNumbers)];",
+											"    pm.expect(registrationNumbers.length).to.eql(uniqueRegistrationNumbers.length);",
+											"});",
+											"",
+											"pm.test(\"IDs are unique\", function () {",
+											"    const ids = response.map(vehicle => vehicle.id);",
+											"    const uniqueIds = [...new Set(ids)];",
+											"    pm.expect(ids.length).to.eql(uniqueIds.length);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/cars/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get car by ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response is JSON\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+											"});",
+											"",
+											"const vehicle = pm.response.json();",
+											"",
+											"pm.test(\"Response is an object\", function () {",
+											"    pm.expect(vehicle).to.be.an(\"object\");",
+											"});",
+											"",
+											"pm.test(\"Object contains required fields\", function () {",
+											"    pm.expect(vehicle).to.have.property(\"manufacturer\").that.is.a(\"string\");",
+											"    pm.expect(vehicle).to.have.property(\"model\").that.is.a(\"string\");",
+											"    pm.expect(vehicle).to.have.property(\"year\").that.is.a(\"number\");",
+											"    pm.expect(vehicle).to.have.property(\"vehicle_type\").that.is.a(\"string\");",
+											"    pm.expect(vehicle).to.have.property(\"registration_number\").that.is.a(\"string\");",
+											"    pm.expect(vehicle).to.have.property(\"purchase_date\").that.is.a(\"string\");",
+											"    pm.expect(vehicle).to.have.property(\"kilometers\").that.is.a(\"number\");",
+											"    pm.expect(vehicle).to.have.property(\"status\").that.is.a(\"string\");",
+											"    pm.expect(vehicle).to.have.property(\"id\").that.is.a(\"number\");",
+											"});",
+											"",
+											"pm.test(\"Year is a valid value\", function () {",
+											"    pm.expect(vehicle.year).to.be.at.least(1886);",
+											"    pm.expect(vehicle.year).to.be.at.most(new Date().getFullYear());",
+											"});",
+											"",
+											"pm.test(\"Kilometers is a non-negative value\", function () {",
+											"    pm.expect(vehicle.kilometers).to.be.at.least(0);",
+											"});",
+											"",
+											"pm.test(\"Purchase date is in valid format\", function () {",
+											"    pm.expect(Date.parse(vehicle.purchase_date)).to.not.be.NaN;",
+											"});",
+											"",
+											"pm.test(\"Status is valid\", function () {",
+											"    const validStatuses = [\"available\", \"rented\", \"maintenance\"];",
+											"    pm.expect(validStatuses).to.include(vehicle.status);",
+											"});",
+											"",
+											"pm.test(\"ID is a positive number\", function () {",
+											"    pm.expect(vehicle.id).to.be.a(\"number\").that.is.greaterThan(0);",
+											"});",
+											"",
+											"pm.test(\"Registration number is not empty\", function () {",
+											"    pm.expect(vehicle.registration_number).to.be.a(\"string\").that.is.not.empty;",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/cars/19",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										"19"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "201 Created",
+					"item": [
+						{
+							"name": "Add new car",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const manufacturers = [\"Audi\", \"BMW\", \"Skoda\", \"Mercedes\", \"Toyota\"];",
+											"const models = [\"A5\", \"X4\", \"Octavia\", \"C-Class\", \"Corolla\"];",
+											"const vehicleTypes = [\"Cabrio\", \"SUV\", \"Sedan\", \"Coupe\", \"Hatchback\"];",
+											"const statuses = [\"available\", \"rented\", \"maintenance\"];",
+											"const registrationNumber = `REG${Math.floor(1000 + Math.random() * 9000)}`; // REG1234",
+											"const kilometers = Math.floor(Math.random() * 100000); // Random kilometers",
+											"const currentDate = new Date().toISOString().split(\"T\")[0]; // Current date in YYYY-MM-DD format",
+											"",
+											"const payload = {",
+											"    manufacturer: manufacturers[Math.floor(Math.random() * manufacturers.length)],",
+											"    model: models[Math.floor(Math.random() * models.length)],",
+											"    year: Math.floor(Math.random() * (2023 - 1980 + 1)) + 1980, // Random year between 1980 and 2023",
+											"    vehicle_type: vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)],",
+											"    registration_number: registrationNumber,",
+											"    purchase_date: currentDate,",
+											"    kilometers: kilometers,",
+											"    status: statuses[Math.floor(Math.random() * statuses.length)]",
+											"};",
+											"",
+											"pm.environment.set(\"postPayload\", JSON.stringify(payload));",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const payload = JSON.parse(pm.environment.get(\"postPayload\"));",
+											"",
+											"pm.test(\"Response status is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Response is JSON\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+											"});",
+											"",
+											"const response = pm.response.json();",
+											"",
+											"pm.test(\"Response matches input data\", function () {",
+											"    pm.expect(response).to.be.an(\"object\");",
+											"    pm.expect(response.manufacturer).to.eql(payload.manufacturer);",
+											"    pm.expect(response.model).to.eql(payload.model);",
+											"    pm.expect(response.year).to.eql(payload.year);",
+											"    pm.expect(response.vehicle_type).to.eql(payload.vehicle_type);",
+											"    pm.expect(response.registration_number).to.eql(payload.registration_number);",
+											"    pm.expect(response.purchase_date).to.eql(payload.purchase_date);",
+											"    pm.expect(response.kilometers).to.eql(payload.kilometers);",
+											"    pm.expect(response.status).to.eql(payload.status);",
+											"});",
+											"",
+											"pm.test(\"ID is a positive number\", function () {",
+											"    pm.expect(response).to.have.property(\"id\").that.is.a(\"number\").and.to.be.greaterThan(0);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{{postPayload}}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/cars/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "204 Deleted",
+					"item": [
+						{
+							"name": "Delete last car",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const getEndpoint = pm.collectionVariables.get(\"base_url\") + \"/cars/\";",
+											"",
+											"pm.sendRequest(getEndpoint, function (err, response) {",
+											"    if (err) {",
+											"        console.error(\"Error fetching cars:\", err);",
+											"        return;",
+											"    }",
+											"    ",
+											"    const cars = response.json();",
+											"",
+											"    if (cars.length === 0) {",
+											"        console.warn(\"No cars available to delete.\");",
+											"        pm.environment.set(\"lastCarId\", null);",
+											"    } else {",
+											"        const lastCar = cars[cars.length - 1];",
+											"        pm.environment.set(\"lastCarId\", lastCar.id);",
+											"        console.log(\"Last car ID set to:\", lastCar.id);",
+											"    }",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status is 204\", function () {",
+											"    pm.response.to.have.status(204);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/cars/{{lastCarId}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										"{{lastCarId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete car by ID",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/cars/17",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										"17"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "404 Not found",
+					"item": [
+						{
+							"name": "Get car by not exists id",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const getEndpoint = pm.collectionVariables.get(\"base_url\") + \"/cars\";",
+											"",
+											"function generateRandomId() {",
+											"    return Math.floor(Math.random() * 10000) + 1;",
+											"}",
+											"",
+											"pm.environment.set(\"idSearchInProgress\", true);",
+											"",
+											"function findUnusedId() {",
+											"    const isInProgress = pm.environment.get(\"idSearchInProgress\");",
+											"    if (!isInProgress) {",
+											"        return;",
+											"    }",
+											"",
+											"    const randomId = generateRandomId();",
+											"    console.log(`Checking ID: ${randomId}`);",
+											"",
+											"    const url = `${getEndpoint}/${randomId}`;",
+											"",
+											"    pm.sendRequest(url, function (err, response) {",
+											"        if (err) {",
+											"            console.error(\"Error fetching car by ID:\", err);",
+											"            return;",
+											"        }",
+											"        ",
+											"        const statusCode = response.status;",
+											"        console.log(statusCode)",
+											"",
+											"        if (statusCode === \"Not Found\") {",
+											"            console.log(`No response for ID ${randomId}. Using this ID for test.`);",
+											"            ",
+											"            pm.environment.set(\"testId\", randomId);",
+											"            pm.environment.set(\"idSearchInProgress\", false);",
+											"        } else {",
+											"            console.log(`Response found for ID ${randomId}. Trying another ID.`);",
+											"            ",
+											"            findUnusedId();",
+											"        }",
+											"    });",
+											"}",
+											"",
+											"findUnusedId();"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status is 404\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Car was successfully deleted\", function () {",
+											"    const response = pm.response.json();",
+											"    pm.expect(response).to.have.property(\"detail\").that.includes(\"Car not found\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/cars/{{testId}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										"{{testId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete not exists car",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status is 404\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test(\"Car was successfully deleted\", function () {",
+											"    const response = pm.response.json();",
+											"    pm.expect(response).to.have.property(\"detail\").that.includes(\"Car not found\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const getEndpoint = pm.collectionVariables.get(\"base_url\") + \"/cars\";",
+											"",
+											"function generateRandomId() {",
+											"    return Math.floor(Math.random() * 10000) + 1;",
+											"}",
+											"",
+											"pm.environment.set(\"idSearchInProgress\", true);",
+											"",
+											"function findUnusedId() {",
+											"    const isInProgress = pm.environment.get(\"idSearchInProgress\");",
+											"    if (!isInProgress) {",
+											"        return;",
+											"    }",
+											"",
+											"    const randomId = generateRandomId();",
+											"    console.log(`Checking ID: ${randomId}`);",
+											"",
+											"    const url = `${getEndpoint}/${randomId}`;",
+											"",
+											"    pm.sendRequest(url, function (err, response) {",
+											"        if (err) {",
+											"            console.error(\"Error fetching car by ID:\", err);",
+											"            return;",
+											"        }",
+											"        ",
+											"        const statusCode = response.status;",
+											"        console.log(statusCode)",
+											"",
+											"        if (statusCode === \"Not Found\") {",
+											"            console.log(`No response for ID ${randomId}. Using this ID for test.`);",
+											"            ",
+											"            pm.environment.set(\"testId\", randomId);",
+											"            pm.environment.set(\"idSearchInProgress\", false);",
+											"        } else {",
+											"            console.log(`Response found for ID ${randomId}. Trying another ID.`);",
+											"            ",
+											"            findUnusedId();",
+											"        }",
+											"    });",
+											"}",
+											"",
+											"findUnusedId();"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/cars/{{testId}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cars",
+										"{{testId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "200 OK",
+					"item": []
+				},
+				{
+					"name": "201 Created",
+					"item": []
+				},
+				{
+					"name": "204 Deleted",
+					"item": []
+				},
+				{
+					"name": "404 Not found",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "200 OK",
+					"item": []
+				},
+				{
+					"name": "201 Created",
+					"item": []
+				},
+				{
+					"name": "204 Deleted",
+					"item": []
+				},
+				{
+					"name": "404 Not found",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "Insurances",
+			"item": [
+				{
+					"name": "200 OK",
+					"item": []
+				},
+				{
+					"name": "201 Created",
+					"item": []
+				},
+				{
+					"name": "204 Deleted",
+					"item": []
+				},
+				{
+					"name": "404 Not found",
+					"item": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}
